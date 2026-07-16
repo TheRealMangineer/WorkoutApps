@@ -93,6 +93,10 @@
   .done-btn { width:32px; height:32px; border-radius:8px; border:1px solid #2a2a2a; background:transparent; color:#444; display:flex; align-items:center; justify-content:center; font-size:15px; }
   .done-btn.done { background: var(--accent); border-color: var(--accent); color:#0a0a0a; }
   .no-rest-hint { text-align:center; font-size:9px; color:#3a3a3a; letter-spacing:2px; margin:6px 0 2px; }
+  .video-btn { display:inline-flex; align-items:center; gap:5px; padding:5px 10px; background:transparent; border:1px solid #2a2a2a; border-radius:6px; color:#888; font-size:10px; letter-spacing:1px; margin-bottom:8px; }
+  .video-btn.active { color: var(--accent); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); }
+  .video-wrap { position:relative; width:100%; aspect-ratio:16/9; border-radius:8px; overflow:hidden; margin-bottom:10px; background:#000; border:1px solid #222; }
+  .video-wrap iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
   .ss-notes-label { font-size:9px; letter-spacing:3px; color:#444; margin-bottom:6px; }
   .ss-notes { width:100%; background:#1a1a1a; border:1px solid #2a2a2a; border-radius:6px; color:#ccc; font-size:12px; padding:8px 10px; min-height:48px; resize:vertical; outline:none; }
   .ss-footer { margin-top:10px; display:flex; align-items:center; gap:10px; }
@@ -240,47 +244,48 @@ const PROGRAM = [
   {
     id: 1, label: "DAY 1", title: "FULL BODY I", tag: "Pull · Legs · Push",
     exercises: [
-      { si:0, letter:"A", name:"Straight-Arm Pull-Down", sets:3, reps:"8–12", muscles:["Lats"], note:"Last: 80lb × 12 reps. Slight lean back, straight arms, drive down." },
-      { si:0, letter:"B", name:"Ab Wheel Roll-Out", sets:3, reps:"8–12", muscles:["Core"], note:"Last: 12 reps. Roll out slow, brace hard, don't let the hips drop." },
-      { si:1, letter:"A", name:"Neutral-Grip Pull-Up", sets:3, reps:"8–12", muscles:["Lats","Biceps"], note:"Last: 100lb assist (170lb BW − 70lb assist) × 9 reps." },
-      { si:1, letter:"B", name:"Kneeling Lat Pull-Down", sets:3, reps:"8–12", muscles:["Lats"], note:"Last: 110lb × 12 reps." },
-      { si:2, letter:"A", name:"Leg Press", sets:3, reps:"8–12", muscles:["Quads","Glutes"], note:"Last: 225lb (180+45) × 10 reps." },
-      { si:2, letter:"B", name:"TRX Jump Squat", sets:3, reps:"20", muscles:["Quads","Power"], note:"Last: 45° angle × 16 reps. Explosive up, soft landing." },
-      { si:3, letter:"A", name:"Dumbbell Romanian Deadlift", sets:3, reps:"8–12", muscles:["Hamstrings","Glutes"], note:"Last: 20lb × 12 reps." },
-      { si:3, letter:"B", name:"Kick Butts", sets:3, reps:"20", muscles:["Glutes","Hamstrings"], note:"Last: 20 reps." },
-      { si:4, letter:"A", name:"Dumbbell Front Raise", sets:3, reps:"8–12", muscles:["Front Delts"], note:"Last: 10lb × 12 reps." },
-      { si:4, letter:"B", name:"Cross-Body Cable Raise", sets:3, reps:"8–12", muscles:["Side Delts"], note:"Last: 20lb per hand × 10 reps." },
+      { si:0, letter:"A", name:"Straight-Arm Pull-Down", sets:3, reps:"8–12", muscles:["Lats"], note:"Last: 80lb × 12 reps. Slight lean back, straight arms, drive down.", video:"soX7zhZ7yfQ" },
+      { si:0, letter:"B", name:"Ab Wheel Roll-Out", sets:3, reps:"8–12", muscles:["Core"], note:"Last: 12 reps. Roll out slow, brace hard, don't let the hips drop.", video:"NbudTqiwguk" },
+      { si:1, letter:"A", name:"Neutral-Grip Pull-Up", sets:3, reps:"8–12", muscles:["Lats","Biceps"], note:"Last: 100lb assist (170lb BW − 70lb assist) × 9 reps.", video:"0LM6onUjtwE" },
+      { si:1, letter:"B", name:"Kneeling Lat Pull-Down", sets:3, reps:"8–12", muscles:["Lats"], note:"Last: 110lb × 12 reps.", video:"VIJPZ8m0EDM" },
+      { si:2, letter:"A", name:"Leg Press", sets:3, reps:"8–12", muscles:["Quads","Glutes"], note:"Last: 225lb (180+45) × 10 reps.", video:"K5n2vg3oZa4" },
+      { si:2, letter:"B", name:"TRX Jump Squat", sets:3, reps:"20", muscles:["Quads","Power"], note:"Last: 45° angle × 16 reps. Explosive up, soft landing.", video:"0ztDNFBa0J8" },
+      { si:3, letter:"A", name:"Dumbbell Romanian Deadlift", sets:3, reps:"8–12", muscles:["Hamstrings","Glutes"], note:"Last: 20lb × 12 reps.", video:"hQgFixeXdZo" },
+      { si:3, letter:"B", name:"Kick Butts", sets:3, reps:"20", muscles:["Glutes","Hamstrings"], note:"Last: 20 reps.", video:"MB8LoopNjPE" },
+      { si:4, letter:"A", name:"Dumbbell Front Raise", sets:3, reps:"8–12", muscles:["Front Delts"], note:"Last: 10lb × 12 reps.", video:"CH9JzDStL3U" },
+      { si:4, letter:"B", name:"Cross-Body Cable Raise", sets:3, reps:"8–12", muscles:["Side Delts"], note:"Last: 20lb per hand × 10 reps.", video:"2j6Tt1xgMDM" },
     ],
   },
   {
     id: 2, label: "DAY 2", title: "FULL BODY II", tag: "Row · Legs · Press",
     exercises: [
-      { si:0, letter:"A", name:"Seated Cable Row", sets:3, reps:"8–12", muscles:["Back","Lats"], note:"Last: 80lb × 9 reps." },
-      { si:0, letter:"B", name:"TRX Row", sets:3, reps:"8–12", muscles:["Back","Biceps"], note:"Last: 45° angle × 10 reps." },
-      { si:1, letter:"A", name:"Gym Ball Hip Extension", sets:3, reps:"8–12", muscles:["Glutes","Hamstrings"], note:"Last: 10 reps. Shoulders on ball, squeeze at the top." },
-      { si:1, letter:"B", name:"Gym Ball Leg Curl", sets:3, reps:"20", muscles:["Hamstrings"], note:"Heels on ball, curl toward glutes, hips stay lifted." },
-      { si:2, letter:"A", name:"Unstable One-Leg Calf Raise", sets:3, reps:"8–12 each", muscles:["Calves"], note:"Last: 35lb × 10 reps." },
-      { si:2, letter:"B", name:"TRX One-Leg Squat Hop", sets:3, reps:"20 each", muscles:["Quads","Power"], note:"Last: 20 reps." },
-      { si:3, letter:"A", name:"Dumbbell Floor Press", sets:3, reps:"8–12", muscles:["Chest","Triceps"], note:"Last: 30lb × 8 reps." },
-      { si:3, letter:"B", name:"Press-Up", sets:3, reps:"8–12", muscles:["Chest","Core"], note:"Last: 8 reps." },
-      { si:4, letter:"A", name:"Incline Dumbbell Press 30°", sets:3, reps:"8–12", muscles:["Upper Chest"], note:"Last: 30lb × 9 reps." },
-      { si:4, letter:"B", name:"Dumbbell Overhead Press", sets:3, reps:"8–12", muscles:["Shoulders"], note:"Last: 5lb × 12 reps." },
+      { si:0, letter:"A", name:"Seated Cable Row", sets:3, reps:"8–12", muscles:["Back","Lats"], note:"Last: 80lb × 9 reps.", video:"7BkgqzC6WsM" },
+      { si:0, letter:"B", name:"TRX Row", sets:3, reps:"8–12", muscles:["Back","Biceps"], note:"Last: 45° angle × 10 reps.", video:"yCuSGoe1gjY" },
+      { si:1, letter:"A", name:"Gym Ball Hip Extension", sets:3, reps:"8–12", muscles:["Glutes","Hamstrings"], note:"Last: 10 reps. Shoulders on ball, squeeze at the top.", video:"VAky0xynywU" },
+      { si:1, letter:"B", name:"Gym Ball Leg Curl", sets:3, reps:"20", muscles:["Hamstrings"], note:"Heels on ball, curl toward glutes, hips stay lifted.", video:"GKMD68CZfFM" },
+      { si:2, letter:"A", name:"Unstable One-Leg Calf Raise", sets:3, reps:"8–12 each", muscles:["Calves"], note:"Last: 35lb × 10 reps.", video:"HJubFVeg8og" },
+      { si:2, letter:"B", name:"TRX One-Leg Squat Hop", sets:3, reps:"20 each", muscles:["Quads","Power"], note:"Last: 20 reps.", video:"taKk_7PTMdk" },
+      { si:3, letter:"A", name:"Dumbbell Floor Press", sets:3, reps:"8–12", muscles:["Chest","Triceps"], note:"Last: 30lb × 8 reps.", video:"AqYFvc9t_vU" },
+      { si:3, letter:"B", name:"Press-Up", sets:3, reps:"8–12", muscles:["Chest","Core"], note:"Last: 8 reps.", video:"bNcdEfJ2wks" },
+      { si:4, letter:"A", name:"Incline Dumbbell Press 30°", sets:3, reps:"8–12", muscles:["Upper Chest"], note:"Last: 30lb × 9 reps.", video:"VwQ-N1GFr5s" },
+      { si:4, letter:"B", name:"Dumbbell Overhead Press", sets:3, reps:"8–12", muscles:["Shoulders"], note:"Last: 5lb × 12 reps.", video:"Did01dFR3Lk" },
     ],
   },
   {
     id: 3, label: "DAY 3", title: "FULL BODY III", tag: "Pull · Lunge · Press",
     exercises: [
-      { si:0, letter:"A", name:"Chin-Up", sets:3, reps:"8–12", muscles:["Lats","Biceps"], note:"Last: 100lb assist (170lb BW − 70lb assist) × 8 reps." },
-      { si:0, letter:"B", name:"Dumbbell Biceps Curl", sets:3, reps:"8–12", muscles:["Biceps"], note:"Last: 20lb × 8 reps." },
-      { si:1, letter:"A", name:"Reverse Walking Lunge", sets:3, reps:"8–12 each", muscles:["Quads","Glutes"], note:"Last: 20lb × 10 reps." },
-      { si:1, letter:"B", name:"Mountain Climber on Sliders", sets:3, reps:"20", muscles:["Core"], note:"Last: 20 reps." },
-      { si:2, letter:"A", name:"Cable Chest Press", sets:3, reps:"8–12", muscles:["Chest"], note:"Last: 35lb × 8 reps." },
-      { si:2, letter:"B", name:"Bosu Plyo Press-Up", sets:3, reps:"8–12", muscles:["Chest","Power"], note:"Last: 8 reps." },
-      { si:3, letter:"A", name:"One-Arm Press-Down", sets:3, reps:"8–12 each", muscles:["Triceps"], note:"Last: 30lb × 12 reps." },
-      { si:3, letter:"B", name:"One-Leg One-Arm Biceps Curl", sets:3, reps:"8–12 each", muscles:["Biceps","Core"], note:"Last: 20lb × 10 reps." },
+      { si:0, letter:"A", name:"Chin-Up", sets:3, reps:"8–12", muscles:["Lats","Biceps"], note:"Last: 100lb assist (170lb BW − 70lb assist) × 8 reps.", video:"y00_rMYk1Oc" },
+      { si:0, letter:"B", name:"Dumbbell Biceps Curl", sets:3, reps:"8–12", muscles:["Biceps"], note:"Last: 20lb × 8 reps.", video:"XE_pHwbst04" },
+      { si:1, letter:"A", name:"Reverse Walking Lunge", sets:3, reps:"8–12 each", muscles:["Quads","Glutes"], note:"Last: 20lb × 10 reps.", video:"spMBVDPRfbI" },
+      { si:1, letter:"B", name:"Mountain Climber on Sliders", sets:3, reps:"20", muscles:["Core"], note:"Last: 20 reps.", video:"BpnUBdclaFU" },
+      { si:2, letter:"A", name:"Cable Chest Press", sets:3, reps:"8–12", muscles:["Chest"], note:"Last: 35lb × 8 reps.", video:"_VM-RHaZ7M0" },
+      { si:2, letter:"B", name:"Bosu Plyo Press-Up", sets:3, reps:"8–12", muscles:["Chest","Power"], note:"Last: 8 reps.", video:"vLAOHs-Bamo" },
+      { si:3, letter:"A", name:"One-Arm Press-Down", sets:3, reps:"8–12 each", muscles:["Triceps"], note:"Last: 30lb × 12 reps.", video:"FSD-tbnEX2k" },
+      { si:3, letter:"B", name:"One-Leg One-Arm Biceps Curl", sets:3, reps:"8–12 each", muscles:["Biceps","Core"], note:"Last: 20lb × 10 reps.", video:"zJMJ7DAEISk" },
     ],
   },
 ];
+
 
 const PRINCIPLES = [
   { icon:"📈", label:"Progressive Overload", text:"Beat last session's number — it's shown as a target in every exercise note." },
@@ -332,6 +337,7 @@ const state = {
   logFilter: null,
   chartDay: 0,
   chartEx: 0,
+  openVideos: {},
 };
 
 let saveTimer = null;
@@ -543,6 +549,14 @@ function renderSupersetCard(di, day, aIdx, bIdx, color) {
           <div class="ex-meta mono">${esc(ex.reps)} reps · ${ex.sets} sets</div>
         </div>
         <div class="ex-note">${esc(ex.note)}</div>
+        ${ex.video ? `
+        <button class="video-btn mono ${state.openVideos[`${di}-${idx}`]?"active":""}" style="${state.openVideos[`${di}-${idx}`]?`border-color:${color};color:${color};background:${color}1f`:""}" data-action="toggle-video" data-key="${di}-${idx}">
+          ${state.openVideos[`${di}-${idx}`] ? "▾ HIDE DEMO" : "▶ WATCH DEMO"}
+        </button>
+        ${state.openVideos[`${di}-${idx}`] ? `
+        <div class="video-wrap">
+          <iframe src="https://www.youtube-nocookie.com/embed/${ex.video}" title="${esc(ex.name)} demo" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+        </div>` : ""}` : ""}
         <div class="grid-head mono"><span>SET</span><span>WEIGHT</span><span>REPS</span><span>DONE</span></div>
         ${Array.from({length:ex.sets},(_,s) => {
           const logKey = `${di}-${idx}-${s}`;
@@ -990,6 +1004,7 @@ appEl.addEventListener("click", (e) => {
   else if (a === "log-filter") { const v = btn.dataset.day; state.logFilter = v==="all" ? null : parseInt(v); render(); }
   else if (a === "chart-day") { state.chartDay = parseInt(btn.dataset.day); state.chartEx = 0; render(); }
   else if (a === "chart-ex") { state.chartEx = parseInt(btn.dataset.ex); render(); }
+  else if (a === "toggle-video") { const k = btn.dataset.key; state.openVideos[k] = !state.openVideos[k]; render(); }
 });
 
 appEl.addEventListener("input", (e) => {
