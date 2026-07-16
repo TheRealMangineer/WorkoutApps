@@ -1,4 +1,4 @@
-const CACHE = "fb-superset-3x-v2";
+const CACHE = "fb-superset-3x-v3";
 const ASSETS = ["./", "./index.html", "./manifest.json", "./icons/icon-192.png", "./icons/icon-512.png"];
 
 self.addEventListener("install", (e) => {
