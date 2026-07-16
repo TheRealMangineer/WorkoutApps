@@ -145,6 +145,9 @@
   .sess-set-chip { padding:4px 10px; background:#161616; border:1px solid #262626; border-radius:6px; font-size:11px; color:#aaa; }
   .sess-set-chip.pr { background:#2a2400; border-color:#FFD70055; color:#FFD700; }
   .clear-btn { width:100%; padding:12px; background:transparent; border:1px solid #2a1414; border-radius:8px; color:#883333; font-size:10px; letter-spacing:2px; margin-top:6px; }
+  .backup-row { display:flex; gap:8px; margin-bottom:18px; }
+  .backup-btn { flex:1; padding:10px; background:#141414; border:1px solid #2a2a2a; border-radius:8px; color:#aaa; font-size:10px; letter-spacing:1px; display:flex; align-items:center; justify-content:center; gap:6px; }
+  .backup-hint { font-size:10px; color:#444; margin:-10px 0 18px; line-height:1.5; }
 
   .chart-day-row, .chart-ex-list { display:flex; gap:5px; margin-bottom:16px; overflow-x:auto; scrollbar-width:none; }
   .chart-day-chip { flex:1 0 auto; min-width:90px; padding:8px; border-radius:8px; border:1px solid #222; background:transparent; color:#666; font-size:10px; letter-spacing:1px; }
@@ -293,6 +296,7 @@ const PRINCIPLES = [
 
 const REST_PRESETS = [45, 60, 75, 90];
 const STORAGE_KEY = "fb_superset_3x_v1";
+const BACKUP_NAME = "full-body-superset-3x";
 
 // ── State ────────────────────────────────────────────────────────
 function buildInitialLog() {
@@ -606,7 +610,15 @@ function renderLogTab() {
       <h1 style="font-size:clamp(28px,8vw,44px);font-weight:900;margin:0 0 2px;letter-spacing:-1px">History</h1>
       <p class="mono" style="margin:0;color:#888;font-size:13px;letter-spacing:2px">${state.history.length} SESSION${state.history.length!==1?"S":""} LOGGED</p>
     </div>
-    <div class="log-body">${renderHistoryBody()}</div>
+    <div class="log-body">
+      <div class="backup-row">
+        <button class="backup-btn mono" data-action="export-backup">⬇ EXPORT BACKUP</button>
+        <button class="backup-btn mono" data-action="import-backup-trigger">⬆ IMPORT BACKUP</button>
+      </div>
+      <div class="backup-hint mono">Save a backup file after big sessions or before switching phones. Importing replaces this device's history, PRs, and settings.</div>
+      <input type="file" id="import-file-input" accept="application/json,.json" style="display:none">
+      ${renderHistoryBody()}
+    </div>
   `;
 }
 
@@ -930,6 +942,67 @@ function saveSession() {
   render();
 }
 
+// ── Backup export / import ──────────────────────────────────────
+function exportBackup() {
+  const payload = {
+    app: BACKUP_NAME,
+    exportedAt: new Date().toISOString(),
+    version: 1,
+    data: {
+      log: state.log,
+      notes: state.notes,
+      restDuration: state.restDuration,
+      history: state.history,
+      prs: state.prs,
+      colors: state.colors,
+    },
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const dateStr = new Date().toISOString().slice(0,10);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${BACKUP_NAME}-backup-${dateStr}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+function importBackupFile(file) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    let parsed;
+    try { parsed = JSON.parse(reader.result); }
+    catch (err) { alert("Could not read that file — make sure it's a backup exported from this app."); return; }
+
+    const data = parsed && parsed.data;
+    if (!data || typeof data !== "object" || !Array.isArray(data.history)) {
+      alert("This file doesn't look like a valid backup for this app.");
+      return;
+    }
+    const fromDate = parsed.exportedAt ? new Date(parsed.exportedAt).toLocaleDateString() : "an unknown date";
+    const ok = confirm(`Import backup from ${fromDate}?\n\nThis replaces this device's current history, PRs, in-progress sets, and settings with the backup. This can't be undone.`);
+    if (!ok) return;
+
+    state.history = Array.isArray(data.history) ? data.history : [];
+    state.prs = (data.prs && typeof data.prs === "object") ? data.prs : {};
+    state.colors = Array.isArray(data.colors) && data.colors.length === DEFAULT_COLORS.length ? data.colors : [...DEFAULT_COLORS];
+    state.restDuration = typeof data.restDuration === "number" ? data.restDuration : 60;
+    const freshLog = buildInitialLog();
+    state.log = (data.log && typeof data.log === "object") ? { ...freshLog, ...data.log } : freshLog;
+    state.notes = (data.notes && typeof data.notes === "object") ? data.notes : {};
+    state.activeTab = "log";
+    state.logView = "sessions";
+    state.logFilter = null;
+    saveState();
+    render();
+    alert("Backup imported.");
+  };
+  reader.onerror = () => alert("Could not read that file.");
+  reader.readAsText(file);
+}
+
 // ── Render loop with focus preservation ─────────────────────────
 const appEl = document.getElementById("app");
 let renderTimer = null;
@@ -992,6 +1065,16 @@ appEl.addEventListener("click", (e) => {
   else if (a === "log-filter") { const v = btn.dataset.day; state.logFilter = v==="all" ? null : parseInt(v); render(); }
   else if (a === "chart-day") { state.chartDay = parseInt(btn.dataset.day); state.chartEx = 0; render(); }
   else if (a === "chart-ex") { state.chartEx = parseInt(btn.dataset.ex); render(); }
+  else if (a === "export-backup") { exportBackup(); }
+  else if (a === "import-backup-trigger") { const inp = document.getElementById("import-file-input"); if (inp) inp.click(); }
+});
+
+appEl.addEventListener("change", (e) => {
+  if (e.target && e.target.id === "import-file-input") {
+    const file = e.target.files && e.target.files[0];
+    if (file) importBackupFile(file);
+    e.target.value = "";
+  }
 });
 
 appEl.addEventListener("input", (e) => {
@@ -1023,6 +1106,10 @@ setInterval(() => {
 
 // ── Init ─────────────────────────────────────────────────────────
 render();
+
+if (navigator.storage && navigator.storage.persist) {
+  navigator.storage.persist().catch(() => {});
+}
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
