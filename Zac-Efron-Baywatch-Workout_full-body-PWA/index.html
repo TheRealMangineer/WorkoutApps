@@ -319,21 +319,22 @@ function loadPersisted() {
 }
 
 const persisted = loadPersisted();
+const initialFreshLog = buildInitialLog();
 
 const state = {
   activeTab: "workout",
   activeDay: 0,
   expandedSS: "0-0",
-  log: (persisted && persisted.log) || buildInitialLog(),
-  notes: (persisted && persisted.notes) || {},
-  restDuration: (persisted && persisted.restDuration) || 60,
+  log: (persisted && persisted.log && typeof persisted.log === "object") ? { ...initialFreshLog, ...persisted.log } : initialFreshLog,
+  notes: (persisted && persisted.notes && typeof persisted.notes === "object") ? persisted.notes : {},
+  restDuration: (persisted && typeof persisted.restDuration === "number") ? persisted.restDuration : 60,
   restRemaining: null,
   restRunning: false,
   lastLabel: "",
   showComplete: false,
-  history: (persisted && persisted.history) || [],
-  prs: (persisted && persisted.prs) || {},
-  colors: (persisted && persisted.colors) || [...DEFAULT_COLORS],
+  history: (persisted && Array.isArray(persisted.history)) ? persisted.history : [],
+  prs: (persisted && persisted.prs && typeof persisted.prs === "object") ? persisted.prs : {},
+  colors: (persisted && Array.isArray(persisted.colors) && persisted.colors.length === DEFAULT_COLORS.length) ? persisted.colors : [...DEFAULT_COLORS],
   showColorSettings: false,
   localColors: null,
   colorEditing: 0,
@@ -381,6 +382,17 @@ function isSetPR(di, ei, key) {
   const w = parseFloat(state.log[key]?.weight) || 0;
   const existing = state.prs[prKey];
   return w>0 && existing && w>=existing.weight && state.log[key]?.done;
+}
+
+function hasAnyProgress() {
+  for (const key in state.log) {
+    const e = state.log[key];
+    if (e && (e.done || e.weight || e.reps)) return true;
+  }
+  for (const key in state.notes) {
+    if (state.notes[key] && state.notes[key].trim()) return true;
+  }
+  return false;
 }
 
 function esc(str) {
@@ -459,6 +471,7 @@ function renderWorkoutTab() {
       <div class="mono" style="font-size:10px;color:${color};font-weight:700;white-space:nowrap">${doneTotalSets}/${totalSets}</div>
       <div class="bar-track"><div class="bar-fill" style="width:${dayProgress*100}%;background:${color}"></div></div>
       ${totalVolume>0 ? `<div class="mono" style="font-size:10px;color:#555;white-space:nowrap">${Math.round(totalVolume)} lb</div>` : ""}
+      ${hasAnyProgress() ? `<button class="icon-btn" data-action="clear-workout" title="Clear all logged sets">↺</button>` : ""}
       <button class="icon-btn" data-action="open-colors">🎨</button>
       ${doneTotalSets===totalSets && totalSets>0 ? `<button class="finish-btn" style="background:${color}" data-action="show-complete">FINISH</button>` : ""}
     </div>
@@ -933,6 +946,19 @@ function switchDay(i) {
   render();
 }
 
+function clearWorkout() {
+  const ok = confirm("Clear all logged sets and notes across every day? Your saved history and PRs won't be touched. This can't be undone.");
+  if (!ok) return;
+  state.log = buildInitialLog();
+  state.notes = {};
+  state.expandedSS = `${state.activeDay}-0`;
+  state.restRemaining = null;
+  state.restRunning = false;
+  state.showComplete = false;
+  saveState();
+  render();
+}
+
 function saveSession() {
   const di = state.activeDay;
   const d = PROGRAM[di];
@@ -1080,6 +1106,7 @@ appEl.addEventListener("click", (e) => {
   else if (a === "toggle-video") { const k = btn.dataset.key; state.openVideos[k] = !state.openVideos[k]; render(); }
   else if (a === "export-backup") { exportBackup(); }
   else if (a === "import-backup-trigger") { const inp = document.getElementById("import-file-input"); if (inp) inp.click(); }
+  else if (a === "clear-workout") { clearWorkout(); }
 });
 
 appEl.addEventListener("change", (e) => {
