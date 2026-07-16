@@ -1,4 +1,4 @@
-const CACHE = "fb-rearranged-v1";
+const CACHE = "fb-rearranged-v3";
 const ASSETS = ["./", "./index.html", "./manifest.json", "./icons/icon-192.png", "./icons/icon-512.png"];
 
 self.addEventListener("install", (e) => {
